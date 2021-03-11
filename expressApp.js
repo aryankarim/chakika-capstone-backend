@@ -3,7 +3,7 @@ const app = express()
 
 
 app.use("/user", require("./routes/user"));
-app.use("/homePage", require("./routes/homePage"));
+app.use("/search", require("./routes/search"));
 
 
 module.exports = app
