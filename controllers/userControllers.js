@@ -1,31 +1,24 @@
 const dbInstance = require('./dbservice')
-const sha256 = require("js-sha256");
 const jwt = require("jwt-then");
 
 exports.register = async (req, res) => {
-    const { name, email, password } = req.body;
+    const { fname, lname, email, phone, password, location } = req.body;
 
-    const emailRegex = /@gmail.com|@yahoo.com|@hotmail.com|@live.com/;
+    const emailRegex = /@gmail.com|@yahoo.com|@auis.edu.krd|@hotmail.com|@live.com/;
 
     if (!emailRegex.test(email)) throw "Email is not supported from your domain.";
     if (password.length < 6) throw "Password must be atleast 6 characters long.";
 
-    const userExists = await User.findOne({
-        email,
-    });
+    const db = dbInstance.getDbServiceInstance();
+    await db.checkDuplicateEmail(email).catch(() => { throw "User with same email already exits." })
 
-    if (userExists) throw "User with same email already exits.";
 
-    const user = new User({
-        name,
-        email,
-        password: sha256(password + process.env.SALT),
-    });
-
-    await user.save();
-
-    res.json({
-        message: "User [" + name + "] registered successfully!",
+    await db.saveUser(fname, lname, email, phone, password, location).then(() => {
+        res.json({
+            message: "User [" + fname + "] registered successfully!",
+        });
+    }).catch(err => {
+        throw "data couldnt be registered"
     });
 };
 
