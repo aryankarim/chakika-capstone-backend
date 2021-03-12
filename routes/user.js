@@ -5,7 +5,7 @@ const userControllers = require("../controllers/userControllers");
 
 router.post("/login", catchErrors(userControllers.login));
 
-router.get("/register", catchErrors(userControllers.register));
+router.post("/register", catchErrors(userControllers.register));
 
 
 module.exports = router;
