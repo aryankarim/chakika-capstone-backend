@@ -1,6 +1,8 @@
 const mysql = require('mysql')
 const dotenv = require('dotenv')
 const sha256 = require("js-sha256")
+const jwt = require("jwt-then");
+
 let instance = null
 dotenv.config()
 
@@ -25,9 +27,9 @@ class DbService {
 
     async saveUser(fname, lname, email, phone, password, location) {
         try {
+            console.log(fname, lname, email, phone, password, location);
             const results = new Promise((resolve, reject) => {
                 const query = `INSERT INTO users (fname,lname,email,phone,password,location_id)values(?,?,?,?,?,?)`
-                console.log(sha256(password + process.env.SALT));
                 connection.query(query, [fname, lname, email, phone, sha256(password + process.env.SALT), location], function (err, result, fields) {
                     if (err) reject(err);
                     resolve(result)
@@ -35,7 +37,7 @@ class DbService {
             })
             return results;
         } catch (error) {
-            console.log("SQL user insert error: ", error);
+            return Promise.reject(error)
         }
     }
 
@@ -48,17 +50,52 @@ class DbService {
                     if (result.length != 0) {
                         console.log(result);
                         reject(err);
-                    }
-                    resolve()
+                    } else
+                        resolve()
                 })
             })
             return results;
         } catch (error) {
-            return new Promise().reject()
+            return Promise.reject(error) //sql error
         }
-
     }
 
+    async authenticateLogin(email, password) {
+        return await new Promise((resolve, reject) => {
+            const query = `SELECT * FROM users WHERE email = ? `;
+            connection.query(query, [email], async function (err, result) {
+                if (result.length === 0)
+                    reject("user was not found with that email")
+                else {
+                    if (result[0].password !== sha256(password + process.env.SALT)) {
+                        reject("password did not match")
+                    } else {
+                        console.log("login is authenticated");
+                        const token = await jwt.sign({ id: result[0].user_id }, process.env.SECRET, { expiresIn: '172800s' });
+                        //console.log(token);
+                        resolve(token)
+                    }
+                }
+            })
+        })
+    }
+
+    async searchItem(item) {
+        const query = `SELECT product_name, brand_name, model_name, model_year 
+                                    FROM products  
+                                    LEFT JOIN brands 
+                                    ON products.brand_id = brands.brand_id 
+                                    LEFT JOIN models 
+                                    on products.model_id=models.model_id WHERE product_name LIKE ?;`;
+        return await new Promise((resolve, reject) => {
+            connection.query(query, ['%' + item + '%'], function (err, result) {
+                if (result.length !== 0 && !err)
+                    resolve(result)
+                else
+                    reject('no item was found');
+            })
+        })
+    }
 }
 
 module.exports = DbService;
