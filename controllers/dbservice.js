@@ -81,7 +81,7 @@ class DbService {
     }
 
     async searchItem(item) {
-        const query = `SELECT product_name, brand_name, model_name, model_year 
+        const query = `SELECT product_name, brand_name, model_name, model_year, image_url 
                                     FROM products  
                                     LEFT JOIN brands 
                                     ON products.brand_id = brands.brand_id 
