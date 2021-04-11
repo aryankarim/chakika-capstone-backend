@@ -29,9 +29,12 @@ exports.login = async (req, res) => {
 
     const db = dbInstance.getDbServiceInstance();
 
-    await db.authenticateLogin(email, password).then((token) => {
+    await db.authenticateLogin(email, password).then(({ token, name, email }) => {
+        console.log(name, email);
         res.json({
             message: "User logged in successfully!",
+            name,
+            email,
             token,
         })
     })

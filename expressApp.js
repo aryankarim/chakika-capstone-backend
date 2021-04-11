@@ -12,6 +12,7 @@ app.get("/authenticate", auth, (req, res) => {
     res.json({ message: "verified" })
 })
 
+app.use("/request", require("./routes/request"));
 app.use("/user", require("./routes/user"));
 app.use("/search", require("./routes/search"));
 

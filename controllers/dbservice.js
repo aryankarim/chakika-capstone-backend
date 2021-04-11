@@ -73,7 +73,7 @@ class DbService {
                         console.log("login is authenticated");
                         const token = await jwt.sign({ id: result[0].user_id }, process.env.SECRET, { expiresIn: '172800s' });
                         //console.log(token);
-                        resolve(token)
+                        resolve({ token, name: result[0].fname + " " + result[0].lname, email: result[0].email })
                     }
                 }
             })
@@ -96,6 +96,41 @@ class DbService {
             })
         })
     }
+
+    async createRequest({ email, name, phone, subject, message }) {
+
+        return await this.getUserId(email).then(async (userID) => {
+
+            const query = `INSERT INTO requests ( name, request_phone, subject, message, user_id)
+                       VALUES (?, ?, ?, ?, ?);`
+            return await new Promise((resolve, reject) => {
+                connection.query(query, [name, phone, subject, message, userID], function (err, result) {
+                    if (err) reject(err);
+                    resolve(result)
+                })
+            })
+
+        }).catch(() => {
+            return Promise.reject(error)
+        })
+
+    }
+
+    async getUserId(email) {
+        const query = await new Promise((resolve, reject) => {
+            connection.query("SELECT user_id FROM users where email = ?", [email], function (err, result) {
+                if (err) reject(err);
+                resolve(result[0].user_id)
+            })
+        })
+        return query;
+
+    }
+
+
+
+
+
 }
 
 module.exports = DbService;
