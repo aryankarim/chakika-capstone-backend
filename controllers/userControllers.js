@@ -26,6 +26,8 @@ exports.register = async (req, res) => {
 
 exports.login = async (req, res) => {
     const { email, password } = req.body;
+    if (email.length < 1 || password.length < 1)
+        throw "please fill all the required information"
 
     const db = dbInstance.getDbServiceInstance();
 

@@ -13,6 +13,7 @@ app.get("/authenticate", auth, (req, res) => {
 })
 
 app.use("/request", require("./routes/request"));
+app.use("/category", require("./routes/category"));
 app.use("/user", require("./routes/user"));
 app.use("/search", require("./routes/search"));
 
