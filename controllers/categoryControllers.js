@@ -22,3 +22,27 @@ exports.getResults = async (req, res) => {
         res.json({ message: resultArray });
     })
 };
+
+exports.saveToGarage = async (req, res) => {
+    console.log("in savetogarage", req.body);
+    const db = dbInstance.getDbServiceInstance();
+    await db.saveCar(req.payload.id, req.body).then((resultArray) => {
+        res.json({ message: resultArray });
+    })
+};
+
+exports.removeFromGarage = async (req, res) => {
+    console.log("in removefromgarage", req.body);
+    const db = dbInstance.getDbServiceInstance();
+    await db.removeCar(req.payload.id, req.body).then((resultArray) => {
+        res.json({ message: resultArray });
+    })
+};
+
+
+exports.getGarageCars = async (req, res) => {
+    const db = dbInstance.getDbServiceInstance();
+    await db.garageCars(req.payload.id).then((resultArray) => {
+        res.json({ message: resultArray });
+    })
+};

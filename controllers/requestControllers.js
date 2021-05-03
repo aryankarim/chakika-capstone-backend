@@ -5,7 +5,7 @@ exports.addRequest = async (req, res) => {
     const db = dbInstance.getDbServiceInstance();
     console.log(req.body);
     console.log("in addrequest");
-    await db.createRequest(req.body).then(() => {
+    await db.createRequest(req.payload.id, req.body).then(() => {
         res.json({ message: "request successfully submitted" });
     }).catch(() => {
         throw "fields cannot be empty"

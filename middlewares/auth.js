@@ -2,15 +2,13 @@ const jwt = require("jwt-then");
 
 module.exports = async (req, res, next) => {
     try {
-
-        console.log("lol", req.body);
         if (!req.headers.authorization) throw "Forbidden!!";
-        console.log("hi");
         const token = req.headers.authorization.split(" ")[1];
 
         const payload = await jwt.verify(token, process.env.SECRET);
         req.payload = payload;
-        console.log(payload);
+        console.log("user payload=", payload);
+        console.log("user payload=", payload.id);
         next();
     } catch (err) {
         res.status(401).json({

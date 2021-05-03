@@ -16,6 +16,7 @@ app.use("/request", require("./routes/request"));
 app.use("/category", require("./routes/category"));
 app.use("/user", require("./routes/user"));
 app.use("/search", require("./routes/search"));
+app.use("/cart", require("./routes/cart"));
 
 
 module.exports = app

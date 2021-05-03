@@ -121,7 +121,7 @@ CREATE TABLE IF NOT EXISTS brands (
   CREATE TABLE IF NOT EXISTS orders (
     order_id int(11) NOT NULL,
     user_id int(11) NOT NULL,
-    status enum('delivered','processed','pending') NOT NULL DEFAULT 'processed',
+    status BOOLEAN,
     order_date date NOT NULL
   ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
   
@@ -130,8 +130,10 @@ CREATE TABLE IF NOT EXISTS brands (
   CREATE TABLE IF NOT EXISTS order_items (
     order_id int(11) NOT NULL,
     product_id int(11) NOT NULL,
-    quantity int(11) NOT NULL
+    quantity int(11) NOT NULL,
+    price INT(10) NOT NULL
   ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
   
   
   
@@ -441,5 +443,95 @@ CREATE TABLE IF NOT EXISTS brands (
     ADD CONSTRAINT FK_35 FOREIGN KEY (location_id) REFERENCES location (location_id);
   COMMIT;
   
-  
+insert into stores (store_id, store_name, owner_name, owner_phone, location_id, email) values (1, 'Karzan Store', 'Hart Drayson', '3182156782', 1, 'hdrayson0@cmu.edu');
+insert into stores (store_id, store_name, owner_name, owner_phone, location_id, email) values (2, 'Yoveo Store', 'Imogene Sargant', '5826043641', 2, 'isargant1@t-online.de');
+insert into stores (store_id, store_name, owner_name, owner_phone, location_id, email) values (3, 'Peshangay Kawa', 'Sigfrid Farres', '9855837991', 3, 'sfarres2@xinhuanet.com');
+insert into stores (store_id, store_name, owner_name, owner_phone, location_id, email) values (4, 'Zoombox Store', 'Tremain Di Iorio', '8964185233', 4, 'tdi3@storify.com');
+insert into stores (store_id, store_name, owner_name, owner_phone, location_id, email) values (5, 'Ashyay Kawan', 'Wernher Haddinton', '2361848409', 5, 'whaddinton4@issuu.com');
+insert into stores (store_id, store_name, owner_name, owner_phone, location_id, email) values (6, 'Pixoboo Store', 'Greta Peter', '5885524082', 6, 'gpeter5@ezinearticles.com');
+insert into stores (store_id, store_name, owner_name, owner_phone, location_id, email) values (7, 'Car Part Store', 'Deerdre Batty', '7201687217', 7, 'dbatty6@nasa.gov');
+insert into stores (store_id, store_name, owner_name, owner_phone, location_id, email) values (8, 'Hana Store', 'Chantalle Bramstom', '5679298584', 8, 'cbramstom7@eepurl.com');
+insert into stores (store_id, store_name, owner_name, owner_phone, location_id, email) values (9, 'Peshangay Babylon', 'Van Bretherick', '3634800762', 9, 'vbretherick8@epa.gov');
+insert into stores (store_id, store_name, owner_name, owner_phone, location_id, email) values (10, 'Peshangay Sarkew', 'Ceciley Larder', '7862426101', 10, 'clarder9@dailymotion.com');
+
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (1, 1, 0, 115);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (2, 1, 8, 120);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (3, 1, 5, 177);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (4, 1, 9, 140);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (5, 1, 3, 71);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (6, 1, 10, 188);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (7, 1, 10, 46);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (8, 1, 2, 193);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (9, 2, 2, 136);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (10, 2, 8, 52);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (11, 2, 9, 143);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (12, 2, 2, 177);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (13, 2, 1, 154);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (14, 2, 9, 68);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (15, 2, 6, 98);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (16, 2, 9, 150);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (17, 3, 0, 74);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (18, 3, 10, 73);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (19, 3, 7, 186);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (20, 3, 6, 125);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (21, 3, 3, 106);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (22, 3, 7, 170);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (23, 3, 6, 127);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (24, 3, 8, 92);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (25, 4, 1, 181);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (26, 4, 6, 177);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (27, 4, 9, 127);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (28, 4, 6, 132);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (29, 4, 10, 130);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (30, 4, 5, 86);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (31, 4, 2, 43);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (32, 4, 7, 193);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (33, 5, 6, 122);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (34, 5, 2, 166);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (35, 5, 2, 135);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (36, 5, 5, 42);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (37, 5, 7, 107);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (38, 5, 10, 156);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (39, 5, 3, 82);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (40, 5, 0, 60);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (41, 6, 8, 141);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (42, 6, 6, 79);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (43, 6, 3, 52);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (44, 6, 6, 59);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (45, 6, 8, 160);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (46, 6, 2, 197);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (47, 6, 10, 111);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (48, 6, 1, 58);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (49, 7, 6, 142);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (50, 7, 1, 64);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (51, 7, 2, 190);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (52, 7, 8, 142);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (53, 7, 8, 188);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (54, 7, 7, 126);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (55, 7, 7, 63);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (56, 7, 2, 199);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (57, 8, 3, 100);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (58, 8, 8, 187);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (59, 8, 4, 148);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (60, 8, 7, 132);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (61, 8, 9, 155);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (62, 8, 9, 65);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (63, 8, 1, 181);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (64, 8, 5, 198);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (65, 9, 1, 89);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (66, 9, 10, 173);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (67, 9, 10, 200);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (68, 9, 1, 138);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (69, 9, 9, 86);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (70, 9, 5, 79);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (71, 9, 3, 135);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (72, 9, 2, 165);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (73, 10, 2, 61);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (74, 10, 7, 81);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (75, 10, 4, 75);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (76, 10, 8, 100);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (77, 10, 7, 82);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (78, 10, 1, 185);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (79, 10, 9, 186);
+insert into stocks (product_id, store_id, stock_quantity, unit_price) values (80, 10, 4, 172);
 `

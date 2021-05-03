@@ -36,6 +36,9 @@ try {
 
 
 class DbService {
+    constructor() {
+        this.allowInsert = false;
+    }
     static getDbServiceInstance() {
         return instance ? instance : new DbService();
     }
@@ -96,12 +99,17 @@ class DbService {
     }
 
     async searchItem(item) {
-        const query = `SELECT product_name, brand_name, model_name, model_year, image_url 
-                                    FROM products  
-                                    LEFT JOIN brands 
-                                    ON products.brand_id = brands.brand_id 
-                                    LEFT JOIN models 
-                                    on products.model_id=models.model_id WHERE product_name LIKE ?;`;
+        const query = `SELECT products.product_id, product_name, brand_name, model_name, model_year, image_url, store_name, stock_quantity, unit_price 
+                            FROM products  
+                            LEFT JOIN brands 
+                            ON products.brand_id = brands.brand_id 
+                            LEFT JOIN models 
+                            ON products.model_id=models.model_id 
+                            LEFT JOIN stocks
+                            ON products.product_id = stocks.product_id
+                            LEFT JOIN stores
+                            ON stores.store_id = stocks.store_id
+                            WHERE product_name LIKE ?;`;
         return await new Promise((resolve, reject) => {
             connection.query(query, ['%' + item + '%'], function (err, result) {
                 if (result.length !== 0 && !err)
@@ -112,23 +120,16 @@ class DbService {
         })
     }
 
-    async createRequest({ email, name, phone, subject, message }) {
+    async createRequest(id, { name, phone, subject, message }) {
 
-        return await this.getUserId(email).then(async (userID) => {
-
-            const query = `INSERT INTO requests ( name, request_phone, subject, message, user_id)
+        const query = `INSERT INTO requests ( name, request_phone, subject, message, user_id)
                        VALUES (?, ?, ?, ?, ?);`
-            return await new Promise((resolve, reject) => {
-                connection.query(query, [name, phone, subject, message, userID], function (err, result) {
-                    if (err) reject(err);
-                    resolve(result)
-                })
+        return await new Promise((resolve, reject) => {
+            connection.query(query, [name, phone, subject, message, id], function (err, result) {
+                if (err) reject(err);
+                resolve(result)
             })
-
-        }).catch(() => {
-            return Promise.reject(error)
         })
-
     }
 
     async getUserId(email) {
@@ -144,8 +145,8 @@ class DbService {
 
     async getAllCategories() {
 
-        const query1 = `SELECT DISTINCT brand_name FROM brands ORDER BY brand_name ASC;`;
-        const query2 = `SELECT DISTINCT model_name FROM models ORDER BY model_name ASC `;
+        const query1 = `SELECT DISTINCT brand_id, brand_name FROM brands ORDER BY brand_name ASC;`;
+        const query2 = `SELECT DISTINCT model_id, model_name FROM models ORDER BY model_name ASC `;
         const query3 = `SELECT DISTINCT model_year FROM models ORDER BY model_year DESC `;
         return await new Promise((resolve, reject) => {
             let allCategories = {};
@@ -179,11 +180,19 @@ class DbService {
     async getCategoryResult({ brand, model, year, category }) {
         const query1 = `SELECT brand_id,model_id,category_id from brands,models,categories 
                             WHERE brand_name=? AND model_name=? AND model_year=? AND category_name = ?;`
-        const query2 = `SELECT DISTINCT product_name 
-                            FROM products,brands,models,categories 
-                            WHERE products.brand_id=? AND products.model_id=? AND products.category_id=? ORDER BY product_id DESC`;
+        const query2 = `SELECT  products.product_id, product_name, store_name, brand_name, model_name, model_year, stock_quantity, unit_price 
+                            FROM products
+                            LEFT JOIN brands 
+                            ON products.brand_id = brands.brand_id 
+                            LEFT JOIN models 
+                            ON products.model_id= models.model_id 
+                            LEFT JOIN stocks
+                            ON products.product_id = stocks.product_id
+                            LEFT JOIN stores
+                            ON stores.store_id = stocks.store_id
+                            WHERE products.brand_id=? AND products.model_id=? AND products.category_id=?;`;
         return await new Promise((resolve, reject) => {
-            connection.query(query1, [brand, model, year, category], function (err1, result1) {
+            connection.query(query1, [brand.split("@#")[1], model.split("@#")[1], year, category], function (err1, result1) {
                 if (result1.length !== 0 && !err1) {
                     connection.query(query2, [result1[0].brand_id, result1[0].model_id, result1[0].category_id], function (err2, result2) {
                         if (result2.length !== 0 && !err2)
@@ -194,6 +203,92 @@ class DbService {
                 }
                 else
                     reject('Brand, Model, and Year didn\'t match!');
+            })
+        })
+    }
+
+
+    async saveCar(userID, { brand, model }) {
+
+        const query = `INSERT INTO garage_cars (user_id, model_id, brand_id)VALUES(?, ?, ?);`
+        return await new Promise((resolve, reject) => {
+            connection.query(query, [userID, model.split('@#')[0], brand.split('@#')[0]], function (err, result) {
+                if (err) reject(err);
+                resolve(result)
+            })
+        }).catch(() => {
+            return Promise.reject("Please select a valid car")
+        })
+    }
+
+    async removeCar(userID, { brand, model }) {
+        const query = `DELETE FROM garage_cars WHERE user_id = ? AND model_id = ? AND brand_id= ?;`
+        console.log(userID, model.split('@#')[0], brand.split('@#')[0]);
+        return await new Promise((resolve, reject) => {
+            connection.query(query, [userID, model.split('@#')[0], brand.split('@#')[0]], function (err, result) {
+                if (err) reject(err);
+                resolve(result)
+            })
+        }).catch(() => {
+            return Promise.reject("Please select a valid car")
+        })
+    }
+
+    async garageCars(userID) {
+        const query = `SELECT user_id, garage_cars.brand_id, garage_cars.model_id,brand_name,model_name,model_year FROM garage_cars 
+                                JOIN  brands on brands.brand_id= garage_cars.brand_id
+                                JOIN models on models.model_id = garage_cars.model_id
+                                WHERE user_id = ?;`
+        return await new Promise((resolve, reject) => {
+            connection.query(query, [userID], function (err, result) {
+                if (err) reject(err);
+                resolve(result)
+            })
+        }).catch(() => {
+            return Promise.reject("could not get garage cars from the sql")
+        })
+    }
+
+    async addOrderItem(id, { productId, productPrice }) {
+        const query1 = `INSERT INTO  orders 
+                            (order_id, user_id, status,order_date) VALUES (0 ,? , 0, ?);`
+        const query2 = `INSERT INTO order_items
+                            (order_id, product_id, quantity, price) VALUES (?, ? , 1 , ?);`
+
+        return await this.prevOrder(id).then(async (resultArray) => {
+            return await new Promise((resolve, reject) => {
+                if (resultArray.length > 0) {
+                    connection.query(query2, [resultArray[0].order_id, productId, productPrice], function (err, result) {
+                        if (err) reject(err);
+                        resolve(result)
+                    })
+                } else {
+                    connection.query(query1, [id, new Date().getFullYear() + '-' + new Date().getDate() + '-' + new Date().getDay()], function (err1, result1) {
+                        if (err1) reject(err1);
+                        console.log(result1.insertId);
+                        connection.query(query2, [result1.insertId, productId, productPrice], function (err2, result2) {
+                            if (err2) reject(err2);
+                            resolve("Added to cart successfully")
+                        })
+                    })
+                }
+
+                console.log(resultArray);
+
+            })
+        }).catch((err) => {
+            return Promise.reject("error in addorderitem", err)
+        })
+
+    }
+
+    async prevOrder(id) {
+        const query = `SELECT order_id, status FROM orders WHERE user_id = ? AND status = 0;`
+        return await new Promise((resolve, reject) => {
+            connection.query(query, [id], function (err, result) {
+                console.log("in prevOrder", result);
+                if (err) reject(err);
+                resolve(result)
             })
         })
     }
