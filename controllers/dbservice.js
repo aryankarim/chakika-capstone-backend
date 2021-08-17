@@ -2,7 +2,7 @@ const mysql = require('mysql')
 const dotenv = require('dotenv')
 const sha256 = require("js-sha256")
 const jwt = require("jwt-then")
-const sqlfile = require('../dbscript/sqlfile')
+const sqlfile = require('../dbscript/sqlfile2')
 
 let instance = null
 dotenv.config()
@@ -17,12 +17,12 @@ const connection = mysql.createConnection({
 try {
     connection.connect((err) => {
         if (err) {
-            console.log("Please enter the correct information for your connection!");
+            console.log("Please enter the correct information for your DB connection!");
         }
         else {
-            connection.query(sqlfile['sqlfile'], (error, result) => {
+            connection.query(sqlfile['sqlfile'], (error) => {
                 if (error) {
-                    console.log("Database already exists!");
+                    console.log("Databse already exists");
                 } else {
                     console.log("Database successfully created!");
                 }
@@ -36,9 +36,7 @@ try {
 
 
 class DbService {
-    constructor() {
-        this.allowInsert = false;
-    }
+
     static getDbServiceInstance() {
         return instance ? instance : new DbService();
     }
@@ -55,7 +53,7 @@ class DbService {
             })
             return results;
         } catch (error) {
-            return Promise.reject(error)
+            return Promise.reject("could not register")
         }
     }
 
@@ -95,11 +93,13 @@ class DbService {
                     }
                 }
             })
+        }).catch((error) => {
+            return Promise.reject(error)
         })
     }
 
     async searchItem(item) {
-        const query = `SELECT products.product_id, product_name, brand_name, model_name, model_year, image_url, store_name, stock_quantity, unit_price 
+        const query = `SELECT products.product_id, product_name, brand_name, model_name, model_year, image_url, store_name, stock_quantity, unit_price, COALESCE(discounts.discount_rate, 0) as discount_rate
                             FROM products  
                             LEFT JOIN brands 
                             ON products.brand_id = brands.brand_id 
@@ -109,7 +109,9 @@ class DbService {
                             ON products.product_id = stocks.product_id
                             LEFT JOIN stores
                             ON stores.store_id = stocks.store_id
-                            WHERE product_name LIKE ?;`;
+                            LEFT JOIN discounts
+                            ON products.product_id = discounts.product_id
+                            WHERE product_name LIKE ?;`
         return await new Promise((resolve, reject) => {
             connection.query(query, ['%' + item + '%'], function (err, result) {
                 if (result.length !== 0 && !err)
@@ -117,6 +119,9 @@ class DbService {
                 else
                     reject('no item was found');
             })
+        }).catch((error) => {
+            console.log(error);
+            return Promise.reject("server error")
         })
     }
 
@@ -129,18 +134,10 @@ class DbService {
                 if (err) reject(err);
                 resolve(result)
             })
+        }).catch((error) => {
+            console.log(error);
+            return Promise.reject("server error")
         })
-    }
-
-    async getUserId(email) {
-        const query = await new Promise((resolve, reject) => {
-            connection.query("SELECT user_id FROM users where email = ?", [email], function (err, result) {
-                if (err) reject(err);
-                resolve(result[0].user_id)
-            })
-        })
-        return query;
-
     }
 
     async getAllCategories() {
@@ -173,6 +170,9 @@ class DbService {
                 else
                     reject('no item was found');
             })
+        }).catch((err) => {
+            console.log(err);
+            return Promise.reject(err)
         })
     }
 
@@ -180,7 +180,7 @@ class DbService {
     async getCategoryResult({ brand, model, year, category }) {
         const query1 = `SELECT brand_id,model_id,category_id from brands,models,categories 
                             WHERE brand_name=? AND model_name=? AND model_year=? AND category_name = ?;`
-        const query2 = `SELECT  products.product_id, product_name, store_name, brand_name, model_name, model_year, stock_quantity, unit_price 
+        const query2 = `SELECT  products.product_id, product_name, store_name, brand_name, model_name, model_year, stock_quantity, unit_price, COALESCE(discounts.discount_rate, 0) as discount_rate 
                             FROM products
                             LEFT JOIN brands 
                             ON products.brand_id = brands.brand_id 
@@ -190,6 +190,8 @@ class DbService {
                             ON products.product_id = stocks.product_id
                             LEFT JOIN stores
                             ON stores.store_id = stocks.store_id
+                            LEFT JOIN discounts
+                            ON products.product_id = discounts.product_id
                             WHERE products.brand_id=? AND products.model_id=? AND products.category_id=?;`;
         return await new Promise((resolve, reject) => {
             connection.query(query1, [brand.split("@#")[1], model.split("@#")[1], year, category], function (err1, result1) {
@@ -204,6 +206,9 @@ class DbService {
                 else
                     reject('Brand, Model, and Year didn\'t match!');
             })
+        }).catch((err) => {
+            console.log(err);
+            return Promise.reject(err)
         })
     }
 
@@ -235,6 +240,7 @@ class DbService {
     }
 
     async garageCars(userID) {
+        console.log(userID);
         const query = `SELECT user_id, garage_cars.brand_id, garage_cars.model_id,brand_name,model_name,model_year FROM garage_cars 
                                 JOIN  brands on brands.brand_id= garage_cars.brand_id
                                 JOIN models on models.model_id = garage_cars.model_id
@@ -251,7 +257,7 @@ class DbService {
 
     async addOrderItem(id, { productId, productPrice }) {
         const query1 = `INSERT INTO  orders 
-                            (order_id, user_id, status,order_date) VALUES (0 ,? , 0, ?);`
+                            (order_id, user_id, status, order_date) VALUES (0 ,? , 0, ?);`
         const query2 = `INSERT INTO order_items
                             (order_id, product_id, quantity, price) VALUES (?, ? , 1 , ?);`
 
@@ -260,7 +266,7 @@ class DbService {
                 if (resultArray.length > 0) {
                     connection.query(query2, [resultArray[0].order_id, productId, productPrice], function (err, result) {
                         if (err) reject(err);
-                        resolve(result)
+                        resolve("item succesfully added")
                     })
                 } else {
                     connection.query(query1, [id, new Date().getFullYear() + '-' + new Date().getDate() + '-' + new Date().getDay()], function (err1, result1) {
@@ -268,7 +274,7 @@ class DbService {
                         console.log(result1.insertId);
                         connection.query(query2, [result1.insertId, productId, productPrice], function (err2, result2) {
                             if (err2) reject(err2);
-                            resolve("Added to cart successfully")
+                            resolve("item succesfully added")
                         })
                     })
                 }
@@ -290,9 +296,78 @@ class DbService {
                 if (err) reject(err);
                 resolve(result)
             })
+        }).catch((err) => {
+            console.log(err);
+            return Promise.reject(err)
+        })
+    }
+    async getCartItems(id) {
+        const query = `SELECT order_items.product_id,product_name, price, quantity 
+                            FROM order_items 
+                            LEFT JOIN products
+                            ON products.product_id=order_items.product_id
+                            WHERE order_id = (SELECT order_id FROM orders WHERE user_id=? and status=0);`
+        return await new Promise((resolve, reject) => {
+            connection.query(query, [id], function (err, result) {
+                if (err) reject(err);
+                resolve(result)
+            })
+        }).catch((err) => {
+            console.log(err);
+            return Promise.reject(err)
         })
     }
 
+    async removeOrderItem(userID, { product_id }) {
+        const query = `DELETE FROM order_items WHERE product_id =?  AND order_id = (SELECT order_id FROM orders WHERE user_id=? and status=0)`
+        return await new Promise((resolve, reject) => {
+            connection.query(query, [product_id, userID], function (err, result) {
+                console.log(result);
+                if (err) reject(err);
+                resolve("order deleted successfully")
+            })
+        }).catch(() => {
+            return Promise.reject("err deleting")
+        })
+    }
+
+    async removeAll(userID) {
+        const query = `DELETE FROM order_items WHERE order_id = (SELECT order_id FROM orders WHERE user_id=? and status=0)`
+        return await new Promise((resolve, reject) => {
+            connection.query(query, [userID], function (err, result) {
+                console.log(result);
+                if (err) reject(err);
+                resolve("orders deleted successfully")
+            })
+        }).catch(() => {
+            return Promise.reject("err deleting")
+        })
+    }
+
+    async getDiscountProducts() {
+        const query = `SELECT discounts.product_id,product_name, discount_rate, expire_date , stock_quantity, unit_price,brands.brand_name,model_name,model_year,store_name FROM discounts
+                            LEFT JOIN products
+                            ON products.product_id = discounts.product_id
+                            LEFT JOIN stocks
+                            ON products.product_id = stocks.product_id
+                            LEFT JOIN brands
+                            ON products.brand_id = brands.brand_id
+                            LEFT JOIN models
+                            ON products.model_id = models.model_id
+                            LEFT JOIN stores
+                            ON stores.store_id = stocks.store_id
+                            ORDER BY RAND()
+                            LIMIT 3;`
+        return await new Promise((resolve, reject) => {
+            connection.query(query, function (err, result) {
+                if (err) reject(err);
+                resolve(result)
+            })
+        }).catch((err) => {
+            console.log(err);
+            return Promise.reject(err)
+        })
+    }
 }
 
 module.exports = DbService;
