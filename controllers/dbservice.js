@@ -17,7 +17,7 @@ const connection = mysql.createConnection({
 try {
     connection.connect((err) => {
         if (err) {
-            console.log("Please enter the correct information for your DB connection!");
+            console.log("Please enter the correct information for your DB connection or make sure you have your MySQL server running!");
         }
         else {
             connection.query(sqlfile['sqlfile'], (error) => {

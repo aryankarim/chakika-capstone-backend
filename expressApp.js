@@ -12,7 +12,6 @@ app.get("/authenticate", auth, (req, res) => {
     res.json({ message: "verified" })
 })
 
-console.log("amash anaka");
 app.use("/request", require("./routes/request"));
 app.use("/category", require("./routes/category"));
 app.use("/user", require("./routes/user"));
