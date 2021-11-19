@@ -38,7 +38,7 @@ exports.register = async (req, res) => {
         throw "error couldn't be registered";
       });
   } catch (error) {
-    console.log('ERROR INSIDE REGISTER: ', error);
+    throw 'Could not register!';
   }
 };
 
@@ -65,6 +65,6 @@ exports.login = async (req, res) => {
         throw errMsg;
       });
   } catch (error) {
-    throw 'Could not login!';
+    throw error;
   }
 };
