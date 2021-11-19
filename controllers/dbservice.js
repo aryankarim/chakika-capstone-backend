@@ -124,8 +124,6 @@ class DbService {
           }
         }
       });
-    }).catch((error) => {
-      return Promise.reject(error);
     });
   }
 

@@ -60,8 +60,11 @@ exports.login = async (req, res) => {
           email,
           token,
         });
+      })
+      .catch((errMsg) => {
+        throw errMsg;
       });
   } catch (error) {
-    console.log('ERROR INSIDE LOGIN: ', error);
+    throw 'Could not login!';
   }
 };
