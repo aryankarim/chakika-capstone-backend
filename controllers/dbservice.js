@@ -97,6 +97,7 @@ class DbService {
     return await new Promise((resolve, reject) => {
       const query = `SELECT * FROM users WHERE email = ? `;
       connection.query(query, [email], async function (err, result) {
+        console.log(result);
         if (!result) reject('user was not found with that email');
         else {
           if (result[0].password !== sha256(password + process.env.SALT)) {
@@ -108,7 +109,6 @@ class DbService {
               process.env.SECRET,
               { expiresIn: '172800s' }
             );
-            //console.log(token);
             resolve({
               token,
               name: result[0].fname + ' ' + result[0].lname,
