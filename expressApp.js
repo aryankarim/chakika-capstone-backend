@@ -7,6 +7,8 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(require('cors')());
 
+console.log('app started');
+
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static('build'));
   app.get('*', (req, res) => {
