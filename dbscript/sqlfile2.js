@@ -22,9 +22,9 @@ SET time_zone = "+00:00";
 --
 -- Database: chakikadb
 --
-CREATE DATABASE IF NOT EXISTS 8IwQQ8rqHU;
+CREATE DATABASE IF NOT EXISTS n4m1kvupi8;
 
-USE 8IwQQ8rqHU;
+USE n4m1kvupi8;
 -- --------------------------------------------------------
 
 --
@@ -311,7 +311,6 @@ CREATE TABLE IF NOT EXISTS products (
   brand_id int(11) DEFAULT NULL,
   image_url text DEFAULT NULL,
   PRIMARY KEY (product_id),
-  UNIQUE KEY image_url (image_url) USING HASH,
   KEY fkIdx_65 (category_id),
   KEY fkIdx_68 (model_id),
   KEY fkIdx_71 (brand_id)

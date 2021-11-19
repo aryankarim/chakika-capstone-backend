@@ -38,15 +38,8 @@ function handleDisconnect() {
     setTimeout(handleDisconnect, 2000); // We introduce a delay before attempting to reconnect,
   }
 
-  connection.on('error', function (err) {
-    console.log('db error', err);
-    if (err.code === 'PROTOCOL_CONNECTION_LOST') {
-      // Connection to the MySQL server is usually
-      handleDisconnect(); // lost due to either server restart, or a
-    } else {
-      // connnection idle timeout (the wait_timeout
-      throw err; // server variable configures this)
-    }
+  connection.on('error', function () {
+    handleDisconnect();
   });
 }
 
@@ -88,6 +81,7 @@ class DbService {
       const results = await new Promise((resolve, reject) => {
         const query = `SELECT * FROM users WHERE email = ? `;
         connection.query(query, [email], function (err, result) {
+          console.log(result);
           if (!result) {
             reject(err);
           } else resolve();
