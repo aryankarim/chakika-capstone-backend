@@ -15,28 +15,36 @@ const connection = mysql.createConnection({
   multipleStatements: true,
 });
 
-try {
-  connection.connect((err) => {
-    if (err) {
-      console.log(err);
-      console.log(
-        'Please enter the correct information for your DB connection or make sure you have your MySQL server running!'
-      );
-    } else {
-      connection.query(sqlfile['sqlfile'], (error) => {
-        if (error) {
-          console.log('Databse already exists');
-        } else {
-          console.log('Database successfully created!');
-        }
-      });
-    }
+function handleDisconnect() {
+  try {
+    connection.connect((err) => {
+      if (err) {
+        console.log(err);
+        console.log(
+          'Please enter the correct information for your DB connection or make sure you have your MySQL server running!'
+        );
+      } else {
+        connection.query(sqlfile['sqlfile'], (error) => {
+          if (error) {
+            console.log('Databse already exists');
+          } else {
+            console.log('Database successfully created!');
+          }
+        });
+      }
+    });
+  } catch (error) {
+    console.log('ERROR CONNECTING:', error);
+    setTimeout(handleDisconnect, 2000); // We introduce a delay before attempting to reconnect,
+  }
+
+  connection.on('error', function (err) {
+    console.log('ON CONNECTION ERROR:', err);
+    handleDisconnect();
   });
-} catch (error) {
-  console.log('something unexpected!');
-  setTimeout(handleDisconnect, 2000); // We introduce a delay before attempting to reconnect,
 }
 
+handleDisconnect();
 class DbService {
   static getDbServiceInstance() {
     return instance ? instance : new DbService();
