@@ -12,11 +12,22 @@ const connection = mysql.createPool({
   host: process.env.HOST,
   user: process.env.USER,
   password: process.env.PASS,
-
+  database: process.env.DB,
   multipleStatements: true,
 });
 
 try {
+  connection.on('connection', function (connection) {
+    console.log('DB Connection established');
+
+    connection.on('error', function (err) {
+      console.error(new Date(), 'MySQL error', err.code);
+    });
+    connection.on('close', function (err) {
+      console.error(new Date(), 'MySQL close', err);
+    });
+  });
+
   connection.query(sqlfile['sqlfile'], (error) => {
     if (error) {
       console.log('Databse already exists');
