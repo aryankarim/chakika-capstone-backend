@@ -22,9 +22,9 @@ SET time_zone = "+00:00";
 --
 -- Database: chakikadb
 --
-CREATE DATABASE IF NOT EXISTS chakikadbv2;
+CREATE DATABASE IF NOT EXISTS 8IwQQ8rqHU;
 
-USE chakikadbv2;
+USE 8IwQQ8rqHU;
 -- --------------------------------------------------------
 
 --
@@ -688,4 +688,4 @@ CREATE EVENT IF NOT EXISTS expired_discount_removal
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 
- `
+ `;
