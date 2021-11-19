@@ -88,8 +88,7 @@ class DbService {
       const results = await new Promise((resolve, reject) => {
         const query = `SELECT * FROM users WHERE email = ? `;
         connection.query(query, [email], function (err, result) {
-          if (result.length != 0) {
-            console.log(result);
+          if (!result) {
             reject(err);
           } else resolve();
         });
