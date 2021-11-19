@@ -7,7 +7,8 @@ const sqlfile = require('../dbscript/sqlfile2');
 let instance = null;
 dotenv.config();
 
-const connection = mysql.createConnection({
+const connection = mysql.createPool({
+  connectionLimit: 10,
   host: process.env.HOST,
   user: process.env.USER,
   password: process.env.PASS,
@@ -15,36 +16,18 @@ const connection = mysql.createConnection({
   multipleStatements: true,
 });
 
-function handleDisconnect() {
-  try {
-    connection.connect((err) => {
-      if (err) {
-        console.log(err);
-        console.log(
-          'Please enter the correct information for your DB connection or make sure you have your MySQL server running!'
-        );
-      } else {
-        connection.query(sqlfile['sqlfile'], (error) => {
-          if (error) {
-            console.log('Databse already exists');
-          } else {
-            console.log('Database successfully created!');
-          }
-        });
-      }
-    });
-  } catch (error) {
-    console.log('ERROR CONNECTING:', error);
-    setTimeout(handleDisconnect, 2000); // We introduce a delay before attempting to reconnect,
-  }
-
-  connection.on('error', function (err) {
-    console.log('ON CONNECTION ERROR:', err);
-    handleDisconnect();
+try {
+  connection.query(sqlfile['sqlfile'], (error) => {
+    if (error) {
+      console.log('Databse already exists');
+    } else {
+      console.log('Database successfully created!');
+    }
   });
+} catch (error) {
+  console.log(error);
 }
 
-handleDisconnect();
 class DbService {
   static getDbServiceInstance() {
     return instance ? instance : new DbService();
