@@ -92,7 +92,8 @@ class DbService {
     return await new Promise((resolve, reject) => {
       const query = `SELECT * FROM users WHERE email = ? `;
       connection.query(query, [email], async function (err, result) {
-        if (result.length > 0) reject('user was not found with that email');
+        console.log(result);
+        if (result.length < 1) reject('user was not found with that email');
         else {
           if (result[0].password !== sha256(password + process.env.SALT)) {
             reject('password did not match');
