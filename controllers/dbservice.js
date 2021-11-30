@@ -280,7 +280,7 @@ class DbService {
 
   async addOrderItem(id, { productId, productPrice }) {
     const query1 = `INSERT INTO  orders
-                            (order_id, user_id, status, order_date) VALUES (0 ,? , 0, ?);`;
+                            SET ?`;
     const query2 = `INSERT INTO order_items
                             (order_id, product_id, quantity, price) VALUES (?, ? , 1 , ?);`;
 
@@ -299,14 +299,15 @@ class DbService {
           } else {
             connection.query(
               query1,
-              [
-                id,
-                new Date().getFullYear() +
+              {
+                user_id: id,
+                order_date:
+                  new Date().getFullYear() +
                   '-' +
                   new Date().getDate() +
                   '-' +
                   new Date().getDay(),
-              ],
+              },
               function (err1, result1) {
                 if (err1) reject(err1);
                 console.log(result1);
