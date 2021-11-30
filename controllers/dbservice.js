@@ -335,12 +335,10 @@ class DbService {
     const query = `SELECT order_id, status FROM orders WHERE user_id = ? AND status = 0;`;
     return await new Promise((resolve, reject) => {
       connection.query(query, [id], function (err, result) {
-        console.log('in prevOrder', result);
         if (err) reject(err);
         resolve(result);
       });
     }).catch((err) => {
-      console.log(err);
       return Promise.reject(err);
     });
   }
