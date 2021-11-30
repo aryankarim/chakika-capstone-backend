@@ -112,6 +112,8 @@ class DbService {
           }
         }
       });
+    }).catch(() => {
+      return Promise.reject('server error');
     });
   }
 
