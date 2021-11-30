@@ -24,16 +24,11 @@ exports.register = async (req, res) => {
     throw 'User with same email already exits.';
   });
 
-  await db
-    .saveUser(fname, lname, email, phone, password, location)
-    .then(() => {
-      res.json({
-        message: 'User [' + fname + '] registered successfully!',
-      });
-    })
-    .catch(() => {
-      throw "error couldn't be registered";
+  await db.saveUser(fname, lname, email, phone, password, location).then(() => {
+    res.json({
+      message: 'User [' + fname + '] registered successfully!',
     });
+  });
 };
 
 exports.login = async (req, res) => {
@@ -43,18 +38,12 @@ exports.login = async (req, res) => {
 
   const db = dbInstance.getDbServiceInstance();
 
-  await db
-    .authenticateLogin(email, password)
-    .then(({ token, name, email }) => {
-      console.log(name, email);
-      res.json({
-        message: 'User logged in successfully!',
-        name,
-        email,
-        token,
-      });
-    })
-    .catch((errMsg) => {
-      throw errMsg;
+  await db.authenticateLogin(email, password).then(({ token, name, email }) => {
+    res.json({
+      message: 'User logged in successfully!',
+      name,
+      email,
+      token,
     });
+  });
 };
