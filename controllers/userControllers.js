@@ -20,9 +20,7 @@ exports.register = async (req, res) => {
   if (password !== repeatpassword) throw 'passowords did not match!';
 
   const db = dbInstance.getDbServiceInstance();
-  await db.checkDuplicateEmail(email).catch(() => {
-    throw 'User with same email already exits.';
-  });
+  await db.checkDuplicateEmail(email);
 
   await db.saveUser(fname, lname, email, phone, password, location).then(() => {
     res.json({

@@ -76,9 +76,8 @@ class DbService {
       const results = await new Promise((resolve, reject) => {
         const query = `SELECT * FROM users WHERE email = ? `;
         connection.query(query, [email], function (err, result) {
-          console.log(result);
-          if (!result) {
-            reject(err);
+          if (result.length > 0) {
+            reject('User with same email already exits.');
           } else resolve();
         });
       });
