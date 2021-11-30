@@ -309,7 +309,7 @@ class DbService {
               ],
               function (err1, result1) {
                 if (err1) reject(err1);
-                console.log(result1.insertId);
+                console.log(result1);
                 connection.query(
                   query2,
                   [result1.insertId, productId, productPrice],
