@@ -7,7 +7,7 @@ This is the backend for Chakika eCommerce web app.
 Must have dependencies running on your computer:
 
 -NodeJS 12.18.0 or above
--XAMPP 8.0.3(run MySQL)
+-MySQL Server
 
 1. Clone this repo on your computer 
 2. Open the cmd(command line prompt) in this repo run 'npm install' command
